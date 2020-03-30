@@ -1,0 +1,258 @@
+\documentclass[twocolumn,8pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{mdframed}
+\usepackage[svgnames,dvipsnames,usenames]{xcolor}
+\usepackage{listings}
+\usepackage[ampersand]{easylist}
+\usepackage[top=0.5cm,left=0.5cm,right=0.5cm,bottom=0.5cm]{geometry}
+
+\lstset{
+    language=bash,
+    frame=single,
+    backgroundcolor=\color{white},
+    basicstyle=\small,
+    showspaces=false
+}
+
+\setlength{\parindent}{0pt}
+
+\title{CMCC - Cheatsheet Bash}
+\author{Fabio Viola}
+\date{March 2020}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\mdfsetup{
+    roundcorner = 5pt,
+    frametitlerule=true,
+    frametitlebackgroundcolor=Black!80,
+    frametitlefont={\bfseries\color{white}},
+    backgroundcolor=Black!15!white,
+    linecolor=Black!80!white,
+    linewidth=1pt,
+    innerbottommargin=10pt,
+    skipbelow=1pt,
+    innerbottommargin=1pt
+}
+
+\LARGE \textbf{Bash quick reference} \normalsize  
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% VARIABLES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Variables]
+Create a variable:
+\begin{lstlisting}
+VAR1="value"             # global
+local VAR2="other value" # local
+\end{lstlisting}
+Arrays:
+\begin{lstlisting}
+MYLIST[0]="value1"      # on the fly
+${MYLIST[i]}            # access element i
+${MYLIST[*]}            # access whole list
+${#MYLIST[*]}           # size of the list
+$MYLIST+="value"        # add an element
+unset $MYLIST[i]        # remove element i
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% ARITHMETIC
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Arithmetic]
+Simple arithmetic with \texttt{let} (output is on a variable):
+\begin{lstlisting}
+let a=2+2
+let a++
+\end{lstlisting}
+
+Arithmetic with \texttt{expr} (output is on stdout):
+\begin{lstlisting}
+expr 2 + 2
+expr 2 \* 2 # note the escape char!
+VAR2=$(expr 2 - $VAR1) # assignment
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% TEST CONDITIONS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Test command for conditions]
+
+Logic comparison:
+\begin{lstlisting}
+[ CONDITION1 -a CONDITION2 ] # and
+[ CONDITION1 -o CONDITION2 ] # or
+[ ! CONDITION ] # not
+\end{lstlisting}
+
+String comparison:
+\begin{lstlisting}
+[ STRING1 = STRING2 ]   # equal
+[ STRING1 != STRING2 ]  # different
+\end{lstlisting}
+
+Integer comparison:
+\begin{lstlisting}
+[ INTEGER1 -eq INTEGER2 ]   # equal
+[ INTEGER1 -ne INTEGER2 ]   # not equal
+[ INTEGER1 -ge INTEGER2 ]   # greater/equal
+[ INTEGER1 -gt INTEGER2 ]   # greater than
+[ INTEGER1 -le INTEGER2 ]   # less/equal
+[ INTEGER1 -lt INTEGER2 ]   # less than
+\end{lstlisting}
+
+File comparison:
+\begin{lstlisting}
+[ -f FILE ] # file exists and is a regular file
+[ -d FILE ] # file exists and is a directory
+\end{lstlisting}
+
+\faInfoCircle\ For more type \texttt{man test}.
+
+\vspace{3pt}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CONDITIONS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Conditions]
+If-then-else:
+\begin{lstlisting}
+if CONDITION; 
+    then ... ; 
+    elif CONDITION ; then ... ; 
+    else ... ; 
+fi
+\end{lstlisting}
+
+Switch case construct:
+\begin{lstlisting}
+case EXPRESSION in
+    VALUE1 )
+        ... ;;
+    VALUE2 )
+        ... ;;
+    ...
+esac
+\end{lstlisting}
+
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% LOOPS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Loops]
+For loop:
+\begin{lstlisting}
+for VARIABLE in RANGE; do ... ; done
+\end{lstlisting}
+
+While loop:
+\begin{lstlisting}
+while CONDITION; do ... ; done
+\end{lstlisting}
+Until loop:
+\begin{lstlisting}
+until CONDITION; do ... ; done
+\end{lstlisting}
+
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% FUNCTIONS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Functions]
+Declare a function:
+\begin{lstlisting}
+functionName () { ...; }
+\end{lstlisting}
+
+Invoke a function:
+\begin{lstlisting}
+functionName ARG1 ARG2 ...
+\end{lstlisting}
+
+Arguments:
+\begin{lstlisting}
+$0         # function name
+$#         # number of arguments provided
+$* / $@    # list of all the arguments provided
+"$@"       # as above, with separated items
+\end{lstlisting}
+\end{mdframed}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% RANGES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Ranges]
+Two ways:
+\begin{lstlisting}
+{START..END}
+seq START INCREMENT END
+\end{lstlisting}
+
+Examples with for loop:
+\begin{lstlisting}
+for I in {1..3} ; do echo $I ; done
+for I in $(seq 0 1 10) ; do echo $I ; done
+\end{lstlisting}
+\end{mdframed}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% SUBSHELLS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Subshell]
+Assign the output of a command to a variable:
+\begin{lstlisting}
+VAR1=$(command)
+VAR2=`command`
+\end{lstlisting}
+\end{mdframed}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% REFERENCES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Resources]
+\begin{lstlisting}
+$ man bash
+\end{lstlisting}
+\end{mdframed}    
+
+\end{document}

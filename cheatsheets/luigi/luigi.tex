@@ -1,0 +1,126 @@
+\documentclass[twocolumn,8pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{mdframed}
+\usepackage[svgnames,usenames]{xcolor}
+\usepackage{listings}
+\usepackage[ampersand]{easylist}
+\usepackage[top=0.5cm,left=0.5cm,right=0.5cm,bottom=0.5cm]{geometry}
+
+\lstset{
+    language=Python,
+    frame=single,
+    backgroundcolor=\color{white},
+    basicstyle=\small,
+    showspaces=false
+}
+
+\setlength{\parindent}{0pt}
+
+\title{CMCC - Cheatsheet LSF}
+\author{Fabio Viola}
+\date{March 2020}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\mdfsetup{
+    roundcorner = 5pt,
+    frametitlerule=true,
+    frametitlebackgroundcolor=MidnightBlue,
+    frametitlefont={\bfseries\color{white}},
+    backgroundcolor=MidnightBlue!15!white,
+    linecolor=MidnightBlue!90!white,
+    linewidth=1pt,
+    innerbottommargin=10pt,
+    skipbelow=1pt,
+    innerbottommargin=1pt
+}
+
+\LARGE \textbf{Python Luigi quick reference} \normalsize
+
+\begin{mdframed}[frametitle=basics]
+Import the libraries:
+\begin{lstlisting}
+import luigi
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[frametitle=Single task program]
+Define a task:
+\begin{lstlisting}
+class HelloWorldTask(luigi.Task):
+    task_namespace = 'examples'
+
+    def run(self):
+        taskName = self.__class__.__name__
+        print("%s says: Hello!" % taskName)
+
+\end{lstlisting}
+
+Create the main:
+\begin{lstlisting}
+if __name__ == '__main__':
+    luigi.run(['examples.HelloWorldTask',
+    '--workers', '1', '--local-scheduler'])
+\end{lstlisting}
+
+Run the program:
+\begin{lstlisting}
+$ luigi --module examples.hello_world
+> examples.HelloWorldTask --local-scheduler
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[frametitle=Output of a task]
+Adding an output method to a task:
+\begin{lstlisting}
+def output(self):
+    return luigi.LocalTarget("data/o1.txt")
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[frametitle=Specifying dependencies]
+Adding a dependency to a task:
+\begin{lstlisting}
+def requires(self):
+    return WritePipelineTask()
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[frametitle=Passing parameters to tasks]
+Specifying an accepted parameter of a task:
+\begin{lstlisting}
+class MyTask(luigi.Task):
+    flow_id = luigi.Parameter()
+    ...
+\end{lstlisting}
+
+Invoking a task with a parameter:
+\begin{lstlisting}
+MyTask(flow_id="something")
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[frametitle=Wrappers]
+Create a dummy Task to trigger a multitude of pipelines:
+\begin{lstlisting}
+class AllTasks(luigi.WrapperTask):
+    
+    def requires(self):
+        yield SomeReport()
+        yield SomeOtherReport()
+        ...    
+\end{lstlisting}
+\end{mdframed}
+
+\begin{mdframed}[frametitle=Resources]
+\faExternalLink\ \href{https://readthedocs.org/projects/luigi/downloads/pdf/latest/}{Documentation}
+
+\ 
+
+\end{mdframed}    
+
+\end{document}

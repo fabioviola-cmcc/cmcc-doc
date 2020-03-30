@@ -1,0 +1,173 @@
+\documentclass[twocolumn,8pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{mdframed}
+\usepackage[svgnames,dvipsnames,usenames]{xcolor}
+\usepackage{listings}
+\usepackage[ampersand]{easylist}
+\usepackage[top=0.5cm,left=0.5cm,right=0.5cm,bottom=0.5cm]{geometry}
+
+\lstset{
+    language=bash,
+    frame=single,
+    backgroundcolor=\color{white},
+    basicstyle=\small,
+    showspaces=false
+}
+
+\setlength{\parindent}{0pt}
+
+\title{CMCC - Cheatsheet LSF}
+\author{Fabio Viola}
+\date{March 2020}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\mdfsetup{
+    roundcorner = 5pt,
+    frametitlerule=true,
+    frametitlebackgroundcolor=BrickRed,
+    frametitlefont={\bfseries\color{white}},
+    backgroundcolor=BrickRed!15!white,
+    linecolor=BrickRed!90!white,
+    linewidth=1pt,
+    innerbottommargin=10pt,
+    skipbelow=1pt,
+    innerbottommargin=1pt
+}
+
+\LARGE \textbf{LSF quick reference} \normalsize  
+
+\begin{mdframed}[frametitle=\#BSUB directives]
+
+Set the name of the job:
+\begin{lstlisting}
+#BSUB -J test_run
+\end{lstlisting}
+
+Set the number of cores/threads (total across the nodes):
+\begin{lstlisting}
+#BSUB -n 1
+\end{lstlisting}
+
+Run all the processes on the same host:
+\begin{lstlisting}
+#BSUB -R "span[hosts=1]"
+\end{lstlisting}
+
+Set the number of processors on each host:
+\begin{lstlisting}
+#BSUB -R "span[ptiles=4]"
+\end{lstlisting}
+
+Set the required memory (in MB):
+\begin{lstlisting}
+#BSUB -M 16000 directive.
+\end{lstlisting}
+
+Set the walltime (hh:mm):
+\begin{lstlisting}
+#BSUB -W 00:10
+\end{lstlisting}
+
+Set the file for the standard output (\%J replaced by the job ID.)
+\begin{lstlisting}
+#BSUB -o test_%J.out
+\end{lstlisting}
+
+Set the file for the standard error (\%J replaced by the job ID.)
+\begin{lstlisting}
+#BSUB -e test_%J.err
+\end{lstlisting}
+
+Select the queue to put the job in:
+\begin{lstlisting}
+#BSUB -q queue_name
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% SUBMISSION
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Submitting/Moving/Killing the job]
+Submit the job:
+\begin{lstlisting}
+$ bsub < myprogram.sh
+\end{lstlisting}
+
+Move a job to another queue:
+\begin{lstlisting}
+$ bmod -q queue_name JOB_ID
+\end{lstlisting}
+
+Suspend and resume a job:
+\begin{lstlisting}
+$ bstop JOB_ID				
+$ bresume JOB_ID
+\end{lstlisting}
+
+Kill the job:
+\begin{lstlisting}
+$ bkill JOB_ID
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% QUEUES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Queues]
+Show the queues available to me/all:
+\begin{lstlisting}
+$ bqueues
+$ bqueues -u all
+\end{lstlisting}
+
+Show the queue of the jobs submitted by me/all:
+\begin{lstlisting}
+$ bjobs
+$ bjobs -u all
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% History
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=History]
+Show the history of jobs:
+\begin{lstlisting}
+$ bhist
+\end{lstlisting}
+
+Show the queue of the jobs submitted by me/all:
+\begin{lstlisting}
+$ bjobs
+$ bjobs -u all
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% REFERENCES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Resources]
+\faExternalLink\ \href{https://hpc.llnl.gov/banks-jobs/running-jobs/lsf-user-manual}{LSF User Manual}
+
+\faExternalLink\ \href{https://www.ibm.com/support/knowledgecenter/SSWRJV_10.1.0/lsf_admin/terms.html}{LSF Terminology}
+\vspace{3pt}
+\end{mdframed}    
+
+\end{document}
