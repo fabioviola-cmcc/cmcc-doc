@@ -1,0 +1,97 @@
+\documentclass[twocolumn,8pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{mdframed}
+\usepackage[svgnames,dvipsnames,usenames]{xcolor}
+\usepackage{listings}
+\usepackage[ampersand]{easylist}
+\usepackage[top=0.5cm,left=0.5cm,right=0.5cm,bottom=0.5cm]{geometry}
+
+\lstset{
+    language=bash,
+    frame=single,
+    backgroundcolor=\color{white},
+    basicstyle=\small,
+    showspaces=false
+}
+
+\setlength{\parindent}{0pt}
+
+\title{CMCC - Cheatsheet Module}
+\author{Fabio Viola}
+\date{March 2020}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\mdfsetup{
+    roundcorner = 5pt,
+    frametitlerule=true,
+    frametitlebackgroundcolor=Gray,
+    frametitlefont={\bfseries\color{white}},
+    backgroundcolor=Gray!15!white,
+    linecolor=Gray!90!white,
+    linewidth=1pt,
+    innerbottommargin=10pt,
+    skipbelow=1pt,
+    innerbottommargin=1pt
+}
+
+\LARGE \textbf{Module quick reference}\hfill \textit{\small Fabio Viola}\normalsize 
+
+\begin{mdframed}[frametitle=Main commands]
+
+List the loaded modules:
+\begin{lstlisting}
+$ module list
+\end{lstlisting}
+
+List the available modules:
+\begin{lstlisting}
+$ module avail
+\end{lstlisting}
+
+List the module requirements:
+\begin{lstlisting}
+$ module help moduleName
+\end{lstlisting}
+
+Load a module:
+\begin{lstlisting}[deletekeywords={help},]
+$ module load moduleName
+\end{lstlisting}
+
+Unload a module:
+\begin{lstlisting}
+$ module unload moduleName
+\end{lstlisting}
+
+Unload all modules:
+\begin{lstlisting}
+$ module purge
+\end{lstlisting}
+
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% SUBMISSION
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% REFERENCES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Resources]
+RTFM!
+\begin{lstlisting}
+$ man module
+\end{lstlisting}
+\end{mdframed}    
+
+\end{document}

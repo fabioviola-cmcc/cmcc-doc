@@ -39,7 +39,7 @@
     innerbottommargin=1pt
 }
 
-\LARGE \textbf{LSF quick reference} \normalsize  
+\LARGE \textbf{LSF quick reference}  \hfill \textit{\small Fabio Viola}\normalsize
 
 \begin{mdframed}[frametitle=\#BSUB directives]
 
@@ -61,6 +61,11 @@ Run all the processes on the same host:
 Set the number of processors on each host:
 \begin{lstlisting}
 #BSUB -R "span[ptiles=4]"
+\end{lstlisting}
+
+Exclusive access to nodes (in case of high RAM requirements):
+\begin{lstlisting}
+#BSUB -x
 \end{lstlisting}
 
 Set the required memory (in MB):
@@ -87,6 +92,22 @@ Select the queue to put the job in:
 \begin{lstlisting}
 #BSUB -q queue_name
 \end{lstlisting}
+
+Specify the project name (for accounting):
+\begin{lstlisting}
+#BSUB -P projectName
+\end{lstlisting}
+
+Specify the service class:
+\begin{lstlisting}
+#BSUB -sla serviceClass
+\end{lstlisting}
+
+Impose dependencies (use \texttt{bjdpinfo} to show them):
+\begin{lstlisting}
+#BSUB -w "ended(JOB_ID)"
+\end{lstlisting}
+
 \end{mdframed}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,6 +157,8 @@ Show the queue of the jobs submitted by me/all:
 $ bjobs
 $ bjobs -u all
 \end{lstlisting}
+
+Queues starting with \texttt{p\_} are parallel queues, while those starting with \texttt{s\_} are serial. \texttt{short}, \texttt{medium} and \texttt{long} define the duration of the queue.
 \end{mdframed}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -156,6 +179,35 @@ $ bjobs
 $ bjobs -u all
 \end{lstlisting}
 \end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CHECKPOINT/MIGRATE
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Checkpoints and migrations]
+Start a checkpointable job with auto checkpoint every 10 min:
+\begin{lstlisting}
+$ bsub -k "io.chkdir 10" io_job
+\end{lstlisting}
+
+Checkpoint existing job:
+\begin{lstlisting}
+$ bchkpnt -f -p 15
+\end{lstlisting}
+
+Restart a job:
+\begin{lstlisting}
+$ brestart io.chkdir JOB_ID
+\end{lstlisting}
+
+Migrate Job:
+\begin{lstlisting}
+$ bmig JOB_ID
+\end{lstlisting}
+\end{mdframed}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
