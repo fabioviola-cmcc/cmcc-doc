@@ -1,0 +1,30 @@
+\section{Refactoring\dots}
+
+I made a small re-organisation of Svitlana's code, in order to:
+
+\begin{itemize}
+    \item put the software under versioning and be able to keep track of changes and revert if needed;
+    \item simplify the configuration (thanks to a simple configuration file with all the paths);
+    \item include a wrapper that allows having multiple instances of Medslick running simultaneously;
+    \item separate software from data.
+\end{itemize}
+
+The result of this re-organisation is represented by two tarballs: \texttt{medslik-src.tar.gz} and \texttt{medslik-data.tar.gz}. In each of the files there are simplified installation scripts and readme files. So, in order to install medslik:
+
+\begin{lstlisting}
+$ tar xzvf medslik-src.tar.gz
+$ cd medslik-src
+$ emacs medslik-src/EXE/medslik.conf
+$ ./source/compile.sh
+\end{lstlisting}
+
+And then, to add its datasets:
+
+\begin{lstlisting}
+$ tar xzvf medslik-data.tar.gz
+$ cd medslik-data
+$ emacs medslik-data/install.conf
+$ ./install.sh
+\end{lstlisting}
+
+These two repositories will be on CMCC's GitHub page soon.

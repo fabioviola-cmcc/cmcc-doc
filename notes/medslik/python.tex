@@ -1,0 +1,205 @@
+\section{Python files}
+
+In this section I report a short explanation of the python scripts included in the project. \textbf{NOTE:} this section is still in progress!
+
+\subsection{\texttt{read\_oil\_data.py}}
+
+For the sake of brevity I don't report here the full code, but just a few snippets (if necessary) and comments.
+
+Lines 3 and 4 are used to read the file \texttt{oilbase.txt} in which a line has the following look:
+
+\begin{lstlisting}
+Abu al bu Khoosh    Abu Dhabi       0.86831.6038.0000006.700.91858.690.241
+\end{lstlisting}
+
+Then, line 16 checks the first parameter. If its value is:
+
+\begin{itemize}
+    \item \texttt{"NAME"} -- It reads the API version through the second parameter passed to the script. Then, it cycles over the lines and when the first field of a row matches the name passed as a parameter it parses the whole line. It extracts \texttt{dens\_oil}, \texttt{api}, \texttt{temp}, \texttt{visc}, \texttt{res\_dens\_oil}, \texttt{res\_perc\_oil} and \texttt{vap\_press}. Then, all this information is written in the file \texttt{oil\_file.txt}.
+    
+    \item \texttt{"API"} -- It reads the API version through the second parameter passed to the script. Then, it cycles from 0 to 222 (what is this hardcoded number???). In the loop it parses a line using some splits. First, it performs a split using two space characters, in order to get in the first field the name of that zone (since it could be a name with a space, e.g. West Texas sour). After that, it extracts \texttt{dens\_oil}, \texttt{api}, \texttt{temp}, \texttt{visc}, \texttt{res\_dens\_oil}, \texttt{res\_perc\_oil} and \texttt{vap\_press}. Then, all this information is written in the file \texttt{oil\_file.txt}.
+    
+\end{itemize}
+
+\subsection{\texttt{preproc\_currents\_mdk2.py}}
+
+Three functions:
+
+\begin{itemize}
+    \item \textbf{\texttt{open\_mercator\_subset}}: takes as input a mercator file and a set of grid corners. It's invoked in the main loop and the first parameter passed is a filename extracted from the folder \texttt{iInputFolder} exploting the date in the loop, while the second is \texttt{grid\_corners}.
+    The input file is opened using the \texttt{Dataset} class provided by \texttt{netCDF4}. From this file, it reads the a latitude and a longitude that in combination with the grid corners are used to define \texttt{xwindow} and \texttt{ywindow} to crop the original map. These two variables are numpy arrays obtained through logical and between the area defined by grid coordinates and the global area. Other components are extracted from the dataset and \textit{cropped}/\textit{sliced}, as the components of the water velocity (\texttt{iU} and \texttt{iV}) and its temperature \texttt{iT}. No need for slicing for time \texttt{iTime} (of course) and \texttt{iDepth} (why not?).
+    It outputs \texttt{x} and \texttt{y}, \texttt{iU} and \texttt{iV}, \texttt{iT}, \texttt{iTime} and \texttt{iDepth}.
+
+    \item \textbf{\texttt{interp\_z}}: takes as input \texttt{iU} (the \textit{u} component of the velocity). First, it gets the shape of this variable. Then, it initialises an output variable as a 4-dimensional array filled with zeros. The four dimensions are time, depth x and y. The dimension related to depth has four elements, as four are the depths (0, 10, 30, 120 m). Then it performs interpolation with some formulas (still to study in depth).
+    Finally, it squeezes the output structure (i.e. removes single-dimensional entries from the shape of the array)
+    
+    \item \textbf{\texttt{interp\_t}}: this fuction performs \textbf{temporal interpolation}. Takes as input \texttt{iOutputUd}, \texttt{iHRTimeLine}, \texttt{iLRTimeLine} and returns a matrix \texttt{iOutputU}.
+\end{itemize}
+
+A main body that is composed by a first part dedicated to the configuration that:
+
+\begin{enumerate}
+    \item contains an hardcoded input folder for CMEMS-GLO files (variable \texttt{iInputFolder}), an hardcoded output folder for MEDSLIK-adapted NetCDF files (variable \texttt{iStorageDirectory}).
+    
+    \item Defines start date and end date (variables \texttt{iStartDate} and \texttt{iEndDate}) of the pre-processing and of course depends on the input data, as well as input and output reference hours (variables \texttt{iInputRefHours} and \texttt{iOutputRefHours}). 
+    
+    \item Defines the geographic limits of the preprocessing through the variables \texttt{xE}, \texttt{xW}, \texttt{yS}, \texttt{yN} and \texttt{grid\_corners}.
+    
+\end{enumerate}
+
+The second part loops over the dates to:
+
+\begin{enumerate}
+    \item Perform spatial and temporal interpolation using the function above. 
+    
+    \item Generate NC files. So, it defines the dimensions (time, y, x and depth), then the variables. It fills the variables with the data calculated before and adds units as attributes. This process is performed for the \textit{u} and \textit{v} components separately, generating a file that ends with \texttt{\_U.nc} and another with \texttt{\_V.nc}. Of course, since we are in the loop, it generates a couple of files for every different day.
+    
+\end{enumerate}
+
+\subsection{\texttt{preproc\_gshhs\_mdk2.py}}
+
+This script was developed for coastline extraction from \textbf{GSHHS}\footnote{Global Self-consistent, Hierarchical, High-resolution Geography Database} full resolution. It extracts coastline files for the desired part of the globe and makes it compatible with MEDSLIK-II. 
+
+It require the \texttt{os} module, the \texttt{Dataset} class of the \texttt{netCDF4} module and \texttt{numpy}.
+
+It has three functions:
+
+\begin{itemize}
+    \item \textbf{\texttt{oce\_grid}}: takes as input a filename. That file is opened as a netCDF dataset. The function reads all the values for netCDF variables \texttt{nav\_lon} and \texttt{nav\_lat} in the variables \texttt{x\_mod} and \texttt{y\_mod} respectively. These variables are then returned by the function.
+    
+    \item \textbf{\texttt{getheader}}: is invoked with a file descriptor as input. The first 8 items of the related file are read through \texttt{numpy.fromfile} in the variable \texttt{A}. 
+    The first 8 fields are in fact the headers that can be described as:
+    
+    \begin{itemize}
+        \item \texttt{id}: Unique polygon id number, starting at 0. Polygon 0 is Eurasia, 1 is Africa, 2 North America, 3 South America, 4 Antarctica and 5 Australia.
+
+        \item \texttt{n}: Number of points in this polygon
+        \item \texttt{flag}: level + version << 8 + greenwich << 16 + source << 24 + river << 25. The five items contained in the flag are:
+        \begin{itemize}
+            \item \texttt{level} = flag \& 255. Values: 1=land, 2=lake, 3=island in lake, 4=pond in island in lake;
+            \item \texttt{version}: = (flag >> 8) \& 255. Values: Should be 12 for GSHHG release 12 (i.e., version 2.2);
+            \item \texttt{greenwich}: (flag >> 16) \& 1. Values: Greenwich is 1 if Greenwich is crossed;
+            \item \texttt{source} = (flag >> 24) \& 1: Values: 0 = CIA WDBII, 1 = WVS;
+            \item \texttt{river} = (flag >> 25) \& 1. Values: 0 = not set, 1 = river-lake and level = 2
+        \end{itemize}
+        
+        \item \texttt{west}, \texttt{east}, \texttt{south}, \texttt{north}: min/max extent in micro-degrees
+        \item \texttt{area}: Area of polygon in 1/10 km\textsuperscript{2}
+        \item \textit{area\_full}: Area of original full-resolution polygon in 1/10 km\textsuperscript{2}
+        \item \texttt{container}: Id of container polygon that encloses this polygon (-1 if none)
+        \item \texttt{ancestor}: Id of ancestor polygon in the full resolution set that was the source of this polygon (-1 if none);
+    \end{itemize}
+        
+    The size of this structure is put in the variable \texttt{cnt}. If \texttt{cnt} is less than 8, the function returns nothing, otherwise (after a few manipulations) it returns \texttt{A} and \texttt{cnt}. Since this function is invoked by the following one specifying \texttt{input\_file} as a parameter, \texttt{A} and \texttt{cnt} will refer to the input GSHHS file. 
+    
+    \item \textbf{\texttt{extract\_coastline}}: takes as input \texttt{x\_mod} and \texttt{y\_mod}, the input and the output files.
+    The function defines the limits and prepares matrices, then opens the input file (read only) and extracts the headers using \texttt{getheader}. 
+    In the middle it performs a lot of tricky transformations (still to fully understand -- I have tests in progress\dots). Finally, it closes the output file.
+        
+\end{itemize}
+
+In the main body we find:
+
+\begin{itemize}
+    \item an hardcoded configuration original gebco netCDF file (variable \texttt{gshhs\_filename}) and the output directory (variable \texttt{output\_dir}). It also has a variable (\texttt{oce\_dir}) to state the files for the hydrometric grid. This is the part defined as\textit{user inputs} \dots
+    
+    \item After having defined the input of the script, the program opens an ocean forceast file and invokes the above-mentioned \texttt{oce\_grid} function. Finally, the function \texttt{extract\_coastline} is invoked.    
+\end{itemize}
+
+\subsubsection{GSHHS}
+
+\textbf{GSHHG} stands for \textit{Global Self-consistent, Hierarchical, High-resolution Geography Database}. It is a high-resolution geography data set, amalgamated from two databases:  \textbf{WVS} (\textit{World Vector Shorelines}) and \textbf{WDBII} (\textit{CIA World Data Bank II}). % The former is the basis for shorelines while the latter is the basis for lakes, although there are instances where differences in coastline representations necessitated adding WDBII islands to GSHHG. The WDBII source also provides political borders and rivers. 
+GSHHG data have undergone extensive processing and should be free of internal inconsistencies such as erratic points and crossing segments. The shorelines are constructed entirely from hierarchically arranged closed polygons. GSHHG is released under the GNU Lesser General Public license. 
+
+I downloaded the main files provided by \textbf{NOAA} (\textit{National Oceanic and Atmospheric Administration} from \href{https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/}{\textbf{here \faExternalLink}}. I'm currently focusing on binary input files (those in \texttt{gshhs-bin-2.3.7.zip}). Before going into the details of my experiments it is worth analysing the content of the file.
+
+The last letter of each file indicates the resolution: \texttt{c} stands for \textit{crude}, \texttt{l} for \textit{low}, then \textit{intermediate} (\texttt{i}), \textit{high} (\texttt{h}), and \textit{full} (\texttt{f}). The first part of the filename can be \texttt{gshhs}, or \texttt{wdb\_borders} of \texttt{wdb\_rivers}. Only the first refers to shoreline, the others are for rivers and borders.
+
+Before analysing the code, I report an information found in the README that could be useful in the future:
+
+\begin{quote}
+\textit{The netCDF distribution provides specially processed netCDF representations of GSHHS and WDBII where the polygons and lines have been subdivided and indexed to deliver rapid map-making for GMT.  Users who wish to access GSHHG outside of GMT are advised to use the binary and shapefile version of the actual polygons as there is no user documentation for how to access the netCDF files.}
+\end{quote}
+
+Now, let's go to the code. The following is a little snippet of my tests (to be incrementally enriched):
+
+\begin{lstlisting}[style=mypython]
+#!/usr/bin/python3
+
+# requirements
+import numpy as np
+
+# vars
+INPUTFILE="/home/val/work [cmcc]/files/gshhs/gshhg-bin-2.3.7/gshhs_c.b"
+
+# main
+if __name__=="__main__":
+
+    # open the input file
+    print("Opening input file %s" % INPUTFILE)
+    fd = open(INPUTFILE, "r")
+
+    # read the file content as a numpy structure.
+    # dtype parameter is needed for binary files
+    # since files are big endian integers, we use >i4.
+    # we only take the headers, so 8 items
+    print("Reading file content")
+    fcontent = np.fromfile(fd, dtype=">i4", count=8)
+
+    # extract information about the region
+    region = fcontent[0]
+    points = fcontent[1]
+    
+    # extract flags
+    flags = fcontent[2]
+    fl_level = flags & 255
+    fl_version = (flags >> 8) & 255
+    fl_green = (flags >> 16) & 1
+    fl_source = (flags >> 24) & 1
+    fl_river = (flags >> 25) & 1
+
+    # print some information
+    print("Region: %s" % region)
+    print("Number of points: %s" % points)
+    print("Level: %s" % fl_level)
+    print("Version: %s" % fl_version)
+    print("Greenwich: %s" % fl_green)
+    print("Source: %s" % fl_source)
+    print("River: %s" % fl_river)     
+
+    # close the input file
+    print("Closing input file")
+    fd.close()
+\end{lstlisting}
+
+If we want to access the coordinates, before closing the file you can add:
+
+\begin{lstlisting}
+    # read coordinates
+    print("Reading coordinates")
+    coords = np.fromfile(fd, dtype=">i4", count=2*points)
+    x=coords[np.arange(0, coords.size ,2)]*1e-6
+    y=coords[np.arange(1, coords.size ,2)]*1e-6
+
+    # Each lon, lat pair is stored in micro-degrees in 4-byte signed integer format
+    print(x[0], y[0])
+\end{lstlisting}
+
+\subsection{\texttt{preproc\_winds\_mdk2.py}}
+
+Two functions:
+
+\begin{itemize}
+\item \texttt{open\_era\_subset}: it opens a netCDF file (received in input as \texttt{sFileName}) using the class \texttt{Dataset} provided by \texttt{netCDF4} (so the input is a netCDF file!). It reads the two variables \texttt{latitude} and \texttt{longitude} and performs cropping. Finally it converts time from "hours from 01-01-1900" to the standard pythonic time.
+
+\item \texttt{interp\_t}: performs time interpolation using \texttt{numpy} functions.
+\end{itemize}
+
+A main part with:
+
+\begin{itemize}
+\item Hardcoded inputs: an input folder for CMEMS-GLO files (\texttt{iInputFolder}), an output folder for MedSlik-adapted netCDF files (\texttt{iStorageDirectory}), start and end date as well as reference hours (\texttt{iStartDate}, \texttt{iEndDate}, \texttt{iInputRefHours}, and \texttt{iOutputRefHours}). Then, we have the coordinates to trace the grid corners (\texttt{xE}, \texttt{xW}, \texttt{yN}, and \texttt{yS}).
+
+\item A loop over the dates. In this loop it generate a NetCDF file for every day. It opens simultaneously a file for day \texttt{i} and for the day after (using \texttt{open\_era\_subset}), then performs temporal interpolation by calling \texttt{interp\_t} (see above) and then creates all the elements that are needed for a netCDF file (attributes, dimensions, variables).
+
+\end{itemize}

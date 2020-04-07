@@ -1,0 +1,212 @@
+\section{Installing Medslik}
+
+\begin{enumerate}
+    \item Download and uncompress the package;
+    \begin{lstlisting}
+$ cd test1
+$ wget http://www.medslik-ii.org/data/v2.01/model/MEDSLIK_II_2.01.tar.gz        
+    \end{lstlisting}
+    
+    \item Load the proper modules;
+    \begin{lstlisting}
+$ module load gcc_9.1.0/9.1.0 
+$ module load intel19.5/19.5.281 intel19.5/szip/2.1.1 intel19.5/hdf5/1.10.5
+$ module load intel19.5/netcdf/C_4.7.2-F_4.5.2_CXX_4.3.1
+    \end{lstlisting}
+    
+    \item Fix the paths in \texttt{MEDSLIK\_II\_2.01/EXE/source/compile.sh};
+    
+    \item Compile;
+    \begin{lstlisting}
+$ cd MEDSLIK_II_2.01/EXE
+$ sh source/compile.sh
+    \end{lstlisting}
+    
+    \item Download and uncompress the other files.
+    \begin{lstlisting}
+$ cd ../..
+$ wget http://www.medslik-ii.org/data/v2.01/cases/paria_casestudy.tar.gz
+$ wget http://www.medslik-ii.org/data/v2.01/scripts_mdk2.tar.gz
+$ wget http://www.medslik-ii.org/data/v2.01/Bathy_coast.tar.gz
+$ tar xvzf Bathy_coast.tar.gz
+$ tar xvzf paria_casestudy.tar.gz
+$ tar xvzf scripts_mdk2.tar.gz
+    \end{lstlisting}
+\end{enumerate}
+
+\section{Running Medslik without LSF}
+
+\begin{enumerate}
+    \item First of all, assuming that Medslik is already compiled, the content of the main directory is:
+
+\begin{lstlisting}
+$ ls
+Bathy_coast/                      log/
+medslik5.inp                      MEDSLIK_II_2.01/
+medslik.tmp                       paria_casestudy/
+run.sh                            scripts_mdk2/
+set_env.sh
+\end{lstlisting}
+
+\item Now, we load the essential modules:
+
+\begin{lstlisting}
+$ module load intel19.5/19.5.281
+$ module load intel19.5/netcdf/C_4.7.2-F_4.5.2_CXX_4.3.1
+\end{lstlisting}
+
+\item Copy the input files to the MEDSLIK\_II\_2.01 installation folder:
+
+\begin{lstlisting}
+$ cp oce_files/* MEDSLIK_II_v2.01/DATA/fcst/H3k    
+$ cp met_files/* MEDSLIK_II_v2.01/DATA/fcst/SK1    
+$ cp bnc_files/* MEDSLIK_II_v2.01/EXE/data
+$ cp xp_files/* MEDSLIK_II_v2.01/EXE
+\end{lstlisting}
+
+\item Run!
+
+\begin{lstlisting}
+$ cd MEDSLIK_II_v2.01/EXE
+$ ./RUN.sh
+\end{lstlisting}
+
+\end{enumerate}
+
+\subsection{Errors}
+
+The first run, right after the \texttt{"STOKE DRIFT CALCULATION"}, gives the following error:
+
+\begin{lstlisting}
+Fortran runtime error: File 'data/medf_.map' does not exist
+\end{lstlisting}
+
+This file should probably come from the \texttt{paria\_casestudy}. As seen in the third step of the previous section, we copied the file manually, so let's check the original \texttt{paria\_casestudy} folder to see if the file exists or not:
+
+\begin{lstlisting}
+$ find ../../paria_casestudy -name medf_.map
+\end{lstlisting}
+
+It returns no results.
+
+\
+
+Moreover, in the output of the simulation, just before this error, it is possible to read this line:
+
+\begin{lstlisting}
+At line 2939 of file /work/opa/witoil-dev/MEDSLIK_II_2.01/EXE/source/medslik_II.for (unit = 51, file = '.85044 18.00833 7    0 Q0')
+\end{lstlisting}
+
+If we look around that line of Fortran code:
+
+\begin{lstlisting}[ basicstyle=\ttfamily\color{black},    backgroundcolor=\color{white}, frame=single, aboveskip=4pt, belowskip=10pt,language=Fortran]
+    if(iaencr.eq.0) then
+        open(51,file='data/'//regn1//'.map',status='old')
+    else
+	    open(51,file='data/'//regn1//'_.map',status='old')
+	endif 
+\end{lstlisting}
+
+\faWarning\ \faWarning\ \faWarning\ So, probably we really miss \texttt{\textbf{medf\_.map}} file.
+
+\ 
+
+After a quick chat with Svitlana, I copied \texttt{medf.map} to \texttt{medf\_.map}. The execution stops now with:
+
+\begin{lstlisting}
+At line 2957 of file /work/opa/witoil-dev/MEDSLIK_II_2.01/EXE/source/medslik_II.for (unit = 51, file = 'data/medf_.map')
+Fortran runtime error: Bad integer for item 1 in list input
+\end{lstlisting}
+
+\
+
+Other errors follow the one reported above. They are related to missing output files, probably not generated due to the absence of the previous file that caused the simulation to end.
+
+Another missing file producing an error line is \texttt{initial.txt}. Actually, this file is created only if the variable \texttt{\$ContourSlick} is equal to \texttt{"YES"}, but the file \texttt{medslik\_inputfile.txt} is instead configured with \texttt{"NO"}.
+
+\ 
+
+This attempt to make MEDSLIK run has been stopped. Please follow the next section that uses Svitlana's code.
+
+\section{Installation with Svitlana's code}
+
+\begin{enumerate}
+    \item First of all, there are three compile files:
+\begin{itemize}
+    \item \texttt{compile.extract.gfortran.sh}
+    \item \texttt{compile\_for\_jday\_lat\_lon.sh}
+    \item \texttt{compile\_medslikII\_for.sh}
+\end{itemize}
+
+I re-wrote the code for these files in a file named \texttt{compile.fabio.sh}:
+
+\begin{lstlisting}
+# load modules
+module load intel19.5/19.5.281
+module load intel19.5/netcdf/C_4.7.2-F_4.5.2_CXX_4.3.1
+module load intel19.5/hdf5/1.10.5
+module load intel19.5/szip/2.1.1
+module load curl/7.66.0
+
+# set folders
+wdir=/work/opa/witoil-dev/test1/meglob
+DIR_EXE=${wdir}/EXE
+DIR_SRC=${wdir}/EXE/source
+NETCDF=/zeus/opt/intel19.5/netcdf
+
+# compile
+gfortran -I$NETCDF/C_4.7.2-F_4.5.2_CXX_4.3.1/include -L$NETCDF/C_4.7.2-F_4.5.2_CXX_4.3.1/lib  $DIR_SRC/Extract_II.for -lnetcdf -lnetcdff -o $DIR_EXE/Extract_II.exe
+gfortran -o $DIR_EXE/jday $DIR_SRC/jday.f 
+gfortran -I$NETCDF/C_4.7.2-F_4.5.2_CXX_4.3.1/include -L$NETCDF/C_4.7.2-F_4.5.2_CXX_4.3.1/lib  $DIR_SRC/medslik_II.for -lnetcdf -lnetcdff -o $DIR_EXE/medslik_II.exe
+gfortran -o $DIR_EXE/lat_lon.exe $DIR_SRC/lat_lon.for
+
+\end{lstlisting}
+
+\item I was looking for file \texttt{medslik\_II\_ens.sh} but is no longer present. It was replaced by \texttt{medslik\_II.sh}. Then, I modified the variables containing the Medslik directory there and in \texttt{RUN.sh}.
+
+\item I loaded the following modules:
+
+\begin{lstlisting}
+$ module load intel19.5/19.5.281
+$ module load intel19.5/netcdf/C_4.7.2-F_4.5.2_CXX_4.3.1
+\end{lstlisting}
+
+\item Then we are able to run the simulation! Here, part of the output is reported:
+
+\begin{lstlisting}
+Directory = /work/opa/witoil-dev/test1/meglob/DATA
+ Wind type =            5           5
+ Writing medslik file for date 05/08/2019 01:00
+ Writing medslik file for date 05/08/2019 02:00
+ Writing medslik file for date 05/08/2019 03:00
+ ...
+PLEASE WAIT: SIMULATION IS RUNNING
+ ...
+ STOKE DRIFT CALCULATION
+ Reading forecast currents from file relo19080912.rel
+ STOKE DRIFT CALCULATION
+ Simulation has now completed           96  hours
+ Simulation has completed successfully
+ UR NETCDF FILE S been CLOSED
+ Average velocity components of surface slick (m/s):
+ East   -1.6292638497366486E-002    North   -2.8533182176095288E-002
+\end{lstlisting}
+
+\end{enumerate}
+
+\section{Running Medslik with LSF}
+
+To run on LSF you can use the following code, by properly tuning bsub parameters.
+
+\begin{lstlisting}
+#!/bin/bash
+wdir=/work/opa/witoil-dev/test1
+source ${wdir}/set_env.sh
+JJ=$1
+
+# Invoke medslik
+MSHome=/work/opa/witoil-dev/test1/meglob/EXE
+MSCommand=./RUN.sh
+bsub -e ${wdir}/log/test_%J.err -o ${wdir}/log/test_%J.out -q s_short -J ${JJ} $MSHome/$MSCommand
+\end{lstlisting}
+

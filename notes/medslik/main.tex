@@ -1,0 +1,61 @@
+\documentclass[10pt]{article}
+\usepackage[top=2.5cm,left=2.5cm,right=2cm,bottom=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{fontawesome}
+\usepackage{hyperref}
+\usepackage{mdframed}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{amsmath}
+
+\usepackage[T1]{fontenc}
+\usepackage{inconsolata}
+\usepackage[ampersand]{easylist}
+\renewcommand{\familydefault}{\sfdefault}
+
+\newcommand{\kw}[1]{\textsc{\textcolor{red}{#1}}}
+
+\setlength{\parindent}{0cm}
+
+\lstset{
+    basicstyle=\ttfamily\color{white},
+    numbers=left,
+    numberstyle=\tiny\ttfamily,
+    breaklines=true,
+    keywordstyle=\bfseries,
+    backgroundcolor=\color{black!85},
+    aboveskip=2pt,
+    belowskip=10pt
+}
+
+\lstdefinestyle{mypython}{
+    basicstyle=\ttfamily,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\ttfamily,
+    breaklines=true,
+    keywordstyle=\bfseries,
+    backgroundcolor=\color{cyan!5},
+    aboveskip=5pt,
+    belowskip=15pt
+}
+
+\title{Running Medslik}
+\author{Fabio Viola}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\input{medslik.tex}
+\input{python.tex}
+\input{repo.tex}
+\input{references.tex}
+
+\end{document}
