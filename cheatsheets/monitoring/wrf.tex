@@ -1,0 +1,196 @@
+\documentclass[twocolumn,8pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{mdframed}
+\usepackage[svgnames,dvipsnames,usenames]{xcolor}
+\usepackage{listings}
+\usepackage[ampersand]{easylist}
+\usepackage{textcomp}
+\usepackage[top=0.5cm,left=0.5cm,right=0.5cm,bottom=0.5cm]{geometry}
+\usepackage{soul}
+
+\lstset{
+    language=bash,
+    frame=single,
+    backgroundcolor=\color{white},
+    basicstyle=\small,
+    showspaces=false
+}
+
+\setlength{\parindent}{0pt}
+
+\title{CMCC - Monitoring}
+\author{Fabio Viola}
+\date{March 2020}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\mdfsetup{
+    roundcorner = 5pt,
+    frametitlerule=true,
+    frametitlebackgroundcolor=YellowOrange,
+    frametitlefont={\bfseries\color{white}},
+    backgroundcolor=YellowOrange!15!white,
+    linecolor=YellowOrange!90!white,
+    linewidth=1pt,
+    innerbottommargin=6pt,
+    innertopmargin=6pt,
+    skipbelow=3pt,
+}
+
+\LARGE \textbf{Monitoring WRF quick ref.}  \hfill \textit{\small Fabio Viola}\normalsize
+
+\begin{mdframed}[frametitle=(A)\ -- Before 8.45 am]
+
+On telegram "WRF Messages" we can receive one of the following messages (\texttt{\$DP}: production date as \texttt{YYYYMMDD}):
+\begin{itemize}\itemsep0pt
+\item[{\textcolor{ForestGreen}{\faCheckCircle}}] Il 16\textdegree\, dei venti di oggi (\texttt{\$DP}) è andato!
+\item[{\textcolor{Red}{\faTimesCircle}}] Il 16\textdegree\, dei venti di oggi (\texttt{\$DP}) ci ha lasciati! La cosa è grave
+\end{itemize}
+\ul{In case of error} see \textbf{Recover A}.
+
+\end{mdframed}    
+
+\begin{mdframed}[frametitle=(Recover A)\ -- Before 10 am]
+\begin{enumerate}\itemsep0pt
+    \item Open \href{http://athena01.cmcc.scc:58082/static/visualiser/index.html#}{\textbf{Luigi\ \faExternalLink}} and check the process \texttt{WindToENI}, to get information from the red bullets.
+    
+    \item Connect to Athena:
+    \begin{lstlisting}
+$ ssh gofs@athena01.cmcc.scc
+    \end{lstlisting}
+    
+    \item Check that files \texttt{\$\{area\}\_1.16\_XXX.grib} are present:
+    \begin{lstlisting}[breaklines=true, showspaces=false, showstringspaces=false, language=bash]
+$ area="Angola Arctic Australia Britain Caribbean Caspian.Sea China.Sea Guinea Gulf.Mex Med.Central Med.East Med.West Mozambique Red.Sea OMANXX" 
+$ for i in ${area}; do echo ${i}; ls /work/tessa_gpfs2/wrf/output/${i}_1.16_*.grib | wc -l; done
+    \end{lstlisting}
+\end{enumerate}
+
+Two options:
+\begin{itemize}\itemsep0pt
+    \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Files are 157 for every region
+    \item[{\textcolor{Red}{\faTimesCircle}}] One or more regions have less than 157 files
+\end{itemize}
+
+\ul{In case of error} see \textbf{Recover B} and \textbf{Recover C}.
+
+\end{mdframed}
+
+
+\begin{mdframed}[frametitle=(Recover B)\ -- Before 10 am]
+
+Check which regions are incomplete:
+
+\begin{itemize}\itemsep0pt
+    \item If \textbf{Red sea} or \textbf{Arctic}: since this data is produced by the Greeks, we can immediately send the email (see below)
+    \item Else, the problem is on our side. \ul{Before} sending the email, check that the problem is not due to available space! Check with \texttt{df -h} on \texttt{das@okeanos.cmcc.scc}. At least 3.5 TB should be available. Otherwise, \textbf{we don't send the email}.
+\end{itemize}
+
+%Write an \href{mailto:chrisstath@mg.uoa.gr}{email to Christos\ \faEnvelope}:
+Write an \href{mailto:eni_atm@cmcc.it}{email to ENI\_ATM\ \faEnvelope}:
+
+
+\begin{quote}
+\textbf{Oggetto: }[eni\_atm] [WRF] lack of some outputs\\
+\textbf{Testo:}\\
+Dear all, \\
+this mail is to inform you that into the folder of WRF today's production (/work/tessa\_gpfs2/wrf/output/) there were some missing outputs:
+
+--\ \textit{list of missing outputs}
+
+Could you please check the encountered issues and provide a description of them for internal tracking purposes?
+
+
+Thanks a lot.
+
+Best Regards
+\end{quote}
+\end{mdframed}
+ 
+\begin{mdframed}[frametitle=(Recover C)\ -- Before 11 am]
+
+When files are missing, we have to provide our backup data. So:
+
+\begin{enumerate}\itemsep0pt
+    \item Open \href{http://athena01.cmcc.scc:58082/static/visualiser/index.html#}{\textbf{Luigi\ \faExternalLink}} and go to \textbf{Workers}, then kill the process \texttt{SubmitWindToEni} (generally shown at the end of the page)
+    
+    \item Connect to Athena and kill job \texttt{EniWnd16}:
+    \begin{lstlisting}
+$ ssh gofs@athena01.cmcc.scc
+$ bkill -J EniWnd16
+    \end{lstlisting}
+    
+    \item Check that backup files are present (\texttt{DP} is set to yesterday):
+    \begin{lstlisting}[breaklines=true,showstringspaces=false]
+$ DP=YYYYMMDD
+$ area="Angola Arctic Australia Britain Caribbean Caspian.Sea South.China Guinea Gulf.Mex Med.Central Med.East Med.West Mozambique Red.Sea OMANXX"
+$ for i in ${area}; do echo ${i}; ls  /work/tessa_gpfs2/archive/rolling/raw/atmos/NCEP/GFS025/1.0forecast/6h/${DP}/backup/${i}_1.16_*.grib | wc -l; done
+    \end{lstlisting}
+\end{enumerate}
+
+After the last command, we have two options:
+\begin{itemize}\itemsep0pt
+    \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Files are 121 for every region
+    \item[{\textcolor{Red}{\faTimesCircle}}] One or more regions have less than 121 files
+\end{itemize}
+
+If \ul{no error occurred}, then:
+\begin{lstlisting}
+$ cd /users/home/gofs/wrf
+$ nohup runEniWindBKP.sh &
+\end{lstlisting}
+
+\ul{In case of error} see \textbf{Recover D}.
+
+\end{mdframed}
+
+\begin{mdframed}[frametitle=(Recover D)\ -- Before 11 am]
+
+If backup files are also missing:
+
+\begin{enumerate}\itemsep0pt
+    \item Connect to zeus:
+    \begin{lstlisting}
+$ ssh das@okeanos.cmcc.scc
+    \end{lstlisting}
+    
+    \item Run:
+\begin{lstlisting}[breaklines=true]
+$ sh /users/home/tessa_gpfs1/das/NCEP/post-proc/script/copy/process_ENI_good.sh
+\end{lstlisting}
+
+\end{enumerate}
+
+then, go back to \textbf{Recover C, point 3}.
+
+\end{mdframed}
+
+\begin{mdframed}[frametitle=(E)\ -- Before 11.30 am]
+
+Disable upload if files are missing:
+
+\begin{itemize}\itemsep0pt
+    \item Connect to zeus and open crontab:
+\begin{lstlisting}
+$ ssh gofs@zeus01.cmcc.scc
+$ EDITOR=nano crontab -e
+    \end{lstlisting}
+    
+    \item Comment the following line:
+    \begin{lstlisting}
+30 11 * * * /users_home/opa/gofs/gofs_op/..
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{NOTE:} please remember to uncomment it after 11.30!
+
+\end{mdframed}
+
+
+{\hfill\footnotesize\textbf{Last update:} \today}
+
+\end{document}

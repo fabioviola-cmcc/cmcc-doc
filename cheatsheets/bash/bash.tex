@@ -48,6 +48,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{mdframed}[frametitle=Command-line arguments]
+Get the program name:
+\begin{lstlisting}
+echo $0
+\end{lstlisting}
+
 Read the arguments:
 \begin{lstlisting}
 echo $1 $2 ...
@@ -101,6 +106,17 @@ expr 2 + 2
 expr 2 \* 2 # note the escape char!
 VAR2=$(expr 2 - $VAR1) # assignment
 \end{lstlisting}
+
+Arithmetic with \texttt{bc}:
+\begin{lstlisting}
+echo "2 + 2" | bc -l
+\end{lstlisting}
+
+Generating a random number between 0 and 1:
+\begin{lstlisting}
+echo $((${RANDOM}%2))
+\end{lstlisting}
+
 \end{mdframed}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,6 +242,30 @@ $* / $@    # list of all the arguments provided
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
+%% SUBSTRINGS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Substrings]
+Getting a substring of Y characters, starting from char X:
+\begin{lstlisting}
+echo ${MYSTRING:X:Y}
+\end{lstlisting}
+
+Getting from character X to the end of the string:
+\begin{lstlisting}
+echo ${MYSTRING:X}
+\end{lstlisting}
+
+Getting the first X characters:
+\begin{lstlisting}
+echo ${MYSTRING:0:X}
+\end{lstlisting}
+
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
 %% RANGES
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -260,16 +300,88 @@ VAR2=`command`
 \end{mdframed}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% WAIT
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Wait]
+Wait for a process to finish:
+\begin{lstlisting}
+./myprocess
+PID_MYPROCESS=$!
+tail --pid=PID_MYPROCESS -f /dev/null
+\end{lstlisting}
+\end{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% DATES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Dates]
+Getting a date with a specific format:
+\begin{lstlisting}
+$ date +"%Y/%m/%d %H:%M"
+\end{lstlisting}
+
+where format strings can be:
+\begin{itemize}\itemsep0pt
+    \item \texttt{\%Y} year with four digits
+    \item \texttt{\%y} year with two digits
+    \item \texttt{\%m} month with two digits
+    \item \texttt{\%d} day with two digits
+    \item \texttt{\%H} hour with two digits
+    \item \texttt{\%M} minute with two digits
+\end{itemize}
+\vspace{10pt}
+
+Getting date of a specific day:
+\begin{lstlisting}
+$ date -d "2020/02/01"
+\end{lstlisting}
+
+Getting a date with a specific offset:
+
+\begin{lstlisting}
+$ date -d "2020/02/01 +4 days"
+\end{lstlisting}
+
+\end{mdframed}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% REFERENCES
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \begin{mdframed}[frametitle=Resources]
-% \begin{lstlisting}
-% $ man bash
-% \end{lstlisting}
-% \end{mdframed}    
+\begin{mdframed}[frametitle=Redirection]
+Redirect both standard input and output:
+\begin{lstlisting}
+$ some_command 2>&1 file.log
+\end{lstlisting}
+
+Redirect to file but also print on stdout:
+\begin{lstlisting}
+$ some_command | tee file.log
+\end{lstlisting}
+
+\end{mdframed}    
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% REFERENCES
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{mdframed}[frametitle=Resources]
+\begin{lstlisting}
+$ man bash
+\end{lstlisting}
+\end{mdframed}    
 
 \end{document}

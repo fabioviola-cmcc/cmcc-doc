@@ -1,0 +1,179 @@
+\documentclass[twocolumn,8pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usepackage{mdframed}
+\usepackage[svgnames,dvipsnames,usenames]{xcolor}
+\usepackage{listings}
+\usepackage[ampersand]{easylist}
+\usepackage{textcomp}
+\usepackage[top=0.5cm,left=0.5cm,right=0.5cm,bottom=0.5cm]{geometry}
+\usepackage{soul}
+\usepackage[shortlabels]{enumitem}
+
+\lstset{
+    language=bash,
+    frame=single,
+    backgroundcolor=\color{white},
+    basicstyle=\small,
+    showspaces=false
+}
+
+\setlength{\parindent}{0pt}
+
+\title{CMCC - Monitoring}
+\author{Fabio Viola}
+\date{March 2020}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\mdfsetup{
+    roundcorner = 5pt,
+    frametitlerule=true,
+    frametitlebackgroundcolor=TealBlue,
+    frametitlefont={\bfseries\color{white}},
+    backgroundcolor=TealBlue!15!white,
+    linecolor=TealBlue!90!white,
+    linewidth=1pt,
+    innerbottommargin=6pt,
+    innertopmargin=6pt,
+    skipbelow=3pt,
+}
+
+\LARGE \textbf{Monitoring GOFS quick ref.}  \hfill \textit{\small Fabio Viola}\normalsize
+
+\ 
+
+\begin{mdframed}[frametitle=(A.1)\ -- At 9 am]
+
+\faSend\ Check that:
+
+\begin{itemize}\itemsep0pt 
+    \item we received message: "\texttt{\textit{YYYYMMDD} - ZEUS Ocean prod\-ucts successfully produced and ready for the upload to ENI ftp}"
+        \begin{itemize}\itemsep0pt
+        \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Message present! -- Go on with the next step\dots
+        \item[{\textcolor{Red}{\faTimesCircle}}] \ul{\textbf{Message missing!}} -- \textit{probably Athena is down!}
+    \end{itemize}
+\end{itemize}
+
+\faInfoCircle\ \textit{This check is for hourly data, files that \ul{must} be sent to ENI. These files can be found on Zeus, under the path} \texttt{/work/opa/gofs/products/GlobEni}.
+
+\end{mdframed}
+
+\begin{mdframed}[frametitle=(A.2)\ -- At 9 am]
+
+\faEnvelope\ Check that:
+
+\begin{enumerate}\itemsep0pt
+    \item we received the email with topic "\texttt{[ZEUS GOFS-OP][\textit{YYYYMMDD}]}" that communicates the end of the production;
+    \begin{itemize}\itemsep0pt
+        \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Email present! -- We can go on with the next step\dots
+        \item[{\textcolor{Red}{\faTimesCircle}}] \ul{\textbf{Email missing!}} -- \textit{probably Athena is down!}
+    \end{itemize}
+    \item the size of data produced is coherent with the expected size (both are reported in the email).
+    \begin{itemize}\itemsep0pt
+        \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Sizes are coherent with the expectations.
+        \item[{\textcolor{Red}{\faTimesCircle}}] \ul{\textbf{Sizes are incoherent.}} \hl{What to do?}
+    \end{itemize}
+\end{enumerate}
+
+\faInfoCircle\ \textit{This check is for daily data, less critical than A.1.}
+
+\end{mdframed}    
+
+\begin{mdframed}[frametitle=(A.3)\ -- At 9 am]
+
+\faEnvelope\ Check that:
+
+\begin{enumerate}\itemsep0pt
+    \item we received an email for each of the file produced. Topic of these emails should be "\texttt{[ZEUS-GOFS-OP][\textit{YYYYMMDD}]NEMO Completed}";
+        \begin{itemize}\itemsep0pt
+        \item[{\textcolor{ForestGreen}{\faCheckCircle}}] 8 emails are present!
+        \item[{\textcolor{Red}{\faTimesCircle}}] \ul{\textbf{At least an email is missing!}} \hl{What to do?}
+        \end{itemize}
+    \item in each message check that the elapsed time is $\approx$ 1600 s.
+        \begin{itemize}\itemsep0pt
+        \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Every time interval is close to 1600 s.
+        \item[{\textcolor{Red}{\faTimesCircle}}] \ul{\textbf{At least one is noticeably smaller/higher!}} \hl{What to do?}
+        \end{itemize}
+\end{enumerate}
+\end{mdframed}    
+
+
+\begin{mdframed}[frametitle=(B)\ -- At 9 am]
+
+Fill the \href{https://docs.google.com/spreadsheets/d/1XrbzNdr-K6jtwD-tTdRAlaO6S9hy3aSgxQ-OCmYEfL0/edit#gid=1550543264}{\textbf{Google Drive \faExternalLink}}\ row of the current day, reporting:
+
+\begin{enumerate}[col.\ A:\ , left=0.25cm, start=3,align=parleft]\itemsep0pt
+    \item Who is carrying out the monitoring operations.
+    \item If the production ended successfully (\faCheck) or not (\faTimes).
+    \item Comments about issues (if any).
+    \item Causes of the issues (if known).
+    \addtocounter{enumi}{1}
+    \item Start/end of regional files.
+    \item Clean of regional files.
+    \item Comments on regional data.
+    \item General comments.
+\end{enumerate}
+
+\textbf{Note 1:} if we used NOAA backup data, report "NOAA Backup" in column E. We are using backup data, if yesterday around 8 pm we received an email with topic "\texttt{[eni\_oce] [YYYYMMDD]: NOAA backup data available}" (date of yesterday). Instead, original data (i.e. non-backup) is available if we received "\texttt{[eni\_oce] [YYYYMMDD]: NOAA original data available for GOFS production}".
+
+\
+
+\textbf{Note 2:} report WRF Backup in column E if we invoked the backup procedure. Adding comments in column F would be great.
+
+\end{mdframed} 
+
+\begin{mdframed}[frametitle=(D)\ -- Before 11.30 am]
+
+Disable upload if files are missing:
+
+\begin{itemize}\itemsep0pt
+    \item Connect to zeus and open crontab:
+\begin{lstlisting}
+$ ssh gofs@zeus01.cmcc.scc
+$ EDITOR=nano crontab -e
+    \end{lstlisting}
+    
+    \item Comment the following line:
+    \begin{lstlisting}
+30 11 * * * /users_home/opa/gofs/gofs_op/..
+    \end{lstlisting}
+\end{itemize}
+
+\textbf{NOTE:} please remember to uncomment it after 11.30!
+
+\end{mdframed} 
+
+
+\begin{mdframed}[frametitle=(E)\ -- Around 11.50 am]
+
+\faSend\ Check if upload ended successfully. If we received a Telegram message with: "\texttt{PD=YYYYMMDD - ENI-OCEAN PRODS PROCESS EXECUTED.}", everything is allright.
+
+\begin{itemize}\itemsep0pt
+    \item[{\textcolor{ForestGreen}{\faCheckCircle}}] Received -- Put \faCheck\ in col.\ G of the \href{https://docs.google.com/spreadsheets/d/1XrbzNdr-K6jtwD-tTdRAlaO6S9hy3aSgxQ-OCmYEfL0/edit#gid=1550543264}{\textbf{Google Drive \faExternalLink}} doc. 
+    
+    \item[{\textcolor{Red}{\faTimesCircle}}] \ul{\textbf{Not received}} -- Put \faTimes\ in col.\ G of the \href{https://docs.google.com/spreadsheets/d/1XrbzNdr-K6jtwD-tTdRAlaO6S9hy3aSgxQ-OCmYEfL0/edit#gid=1550543264}{\textbf{Google Drive \faExternalLink}} document. 
+\end{itemize}
+
+\end{mdframed} 
+
+\vfill
+
+\begin{mdframed}[frametitle=Final remarks]
+\begin{itemize}\itemsep0pt
+    \item Telegram messages contains more information than emails. Nonetheless, these systems are complementary to each other.
+    
+    \item Important information about errors can be found on Zeus, under \texttt{/work/opa/gofs/gofs\_working/logs/YYYYMMDD/}
+    
+    \item Outcome of the elaboration is in \texttt{/data/products/GOFS}. Folder \texttt{globEni\_Zeus} contains data that should be transferred to ENI. \texttt{globNative\_Zeus} contains daily data written by NEMO. \texttt{globWeb} contains file related to the rebuild of hourly data.
+    
+    \item More information is available in the  \href{https://docs.google.com/presentation/d/1GtyfHDRA8M8fqbOj-mrj2zuq521KK_PiMLw-3JQ7jYQ/edit?usp=sharing}{\textbf{GOFS16 Simplified Manual \faExternalLink}}
+\end{itemize}
+\end{mdframed} 
+
+{\hfill\footnotesize\textbf{Last update:} \today}
+
+\end{document}
