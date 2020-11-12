@@ -1,6 +1,6 @@
 # Monitoring WRF
 
-## Before 8.45 am
+## Step 0 -- Before 8.45 am
 
 On the telegram channel **WRF Messages** we can receive one of the following messages (`$DP`: production date as `YYYYMMDD`):
 
@@ -9,7 +9,7 @@ On the telegram channel **WRF Messages** we can receive one of the following mes
 
 In case of FAILURE see **Recover A**
 
-## Recover A
+## Recover A -- Before 10 am
 
 1. Open [Luigi](http://athena01.cmcc.scc:58082/static/visualiser/index.html#) and check the process `WindToENI`, to get information from the red bullets.
 2. Connect to Athena:
@@ -28,7 +28,7 @@ Two options:
 
 In case of FAILURE see **Recover B**
 
-## Recover B
+## Recover B -- Before 10 am
 
 Check which regions are incomplete. 
 - If **Red sea** or **Arctic** are the incomplete regions, we can immediately send the email below.
@@ -89,7 +89,7 @@ $ sh /users/home/tessa_gpfs1/das/NCEP/post-proc/script/copy/process_ENI_good.sh
 
 Then go back to **Recover C, point 3**
 
-## Recover E
+## Recover E -- Before 11.30 am
 
 If files are still missing, disable the upload to ENI.
 
