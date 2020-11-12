@@ -18,7 +18,7 @@ ssh gofs@athena01.cmcc.scc
 ```
 3. Check that files `${area}_1.16_XXX.grib` are present:
 ```bash
-area="Angola Arctic Australia Britain Caribbean Caspian.Sea South.China Guinea Gulf.Mex Med.Central Med.East Med.West Mozambique Red.Sea"
+area="Angola Arctic Australia Britain Caribbean Caspian.Sea China.Sea Guinea Gulf.Mex Med.Central Med.East Med.West Mozambique Red.Sea"
 for i in ${area}; do  echo $i;  ls /work/tessa_gpfs2/wrf/output/${i}_1.16_*.grib |wc -l; done
 ```
 
@@ -63,6 +63,8 @@ DP=YYYYMMDD
 area="Angola Arctic Australia Britain Caribbean Caspian.Sea South.China Guinea Gulf.Mex Med.Central Med.East Med.West Mozambique Red.Sea"
 for i in ${area}; do echo ${i};ls  /work/tessa_gpfs2/archive/rolling/raw/atmos/NCEP/GFS025/1.0forecast/6h/${DP}/backup/${i}_1.16_*.grib|wc -l;done
 ```
+**NOTE**: this region list is different from the one used in step *Recover A*!
+
 
 After the last command, we have two options:
 - Files are 121 for every region. -- **SUCCESS**
