@@ -1,0 +1,174 @@
+\section{Workflow}
+
+\begin{frame}{Workflow}
+
+The main steps to create and run a coupled model with CIME are:
+
+\begin{enumerate}
+    \item Creation of a case    
+    \item Setting up the case
+    \item Building the case
+    \item Submitting the case
+\end{enumerate}    
+
+\ 
+
+In the following slides, we will analyse in detail each of these steps.
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CREATION OF A CASE
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Creation of a case}
+Create the new case:
+
+\begin{verbatim}
+$ ./scripts/create_newcase --compset C_NEMO --res T62_n13 \ 
+  --case HELLOWORLD --mach zeus --run-unsupported
+\end{verbatim}
+
+\ 
+
+The mandatory parameters are:
+
+\begin{itemize}
+    \item<1-> \textbf{compset}: a component set defining all the involved models. To have a list of the available compsets:
+    \begin{verbatim}
+$ ./scripts/query_config --compsets
+    \end{verbatim}
+    \item<2-> \textbf{case name}: a friendly name for the case. 
+    
+    \item<3-> \textbf{grid}: a string identifying a combination of the grids used by the models. A list of the available grids can be retrieved with: 
+    \begin{verbatim}
+$ ./scripts/query_config --grids
+    \end{verbatim}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CASE details
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Details\dots}
+
+\begin{itemize}
+    \item<1-> Compset C\_NEMO is defined as:
+    \begin{itemize}
+        \item \texttt{2000\_DATM\%NYF\_SLND\_DICE\%SSMI\_NEMO\_DROF\%NYF\_SGLC\_SWAV}
+        \item \dots that means NEMO as a prognostic model, atmosphere, ice and river as data models;
+        \item The rest is defined as a set of stub models.
+    \end{itemize}
+    \item<2-> The grid is defined as:
+    \begin{itemize}
+        \item T62 for atmosphere and land, tn1v3 for ocean and ice
+    \end{itemize}
+\end{itemize}
+    
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CASE SETUP
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Setting up the case}
+To setup the case, let's move to the case directory and:
+
+\begin{verbatim}
+$ ./case.setup
+\end{verbatim}
+
+\ 
+
+This scripts creates some additional directories, configuration files and scripts.
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CASE BUILD
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Building the case}
+
+Now it's time to build the model, so (still from the case root):
+
+\begin{verbatim}
+$ ./case.build
+\end{verbatim}
+
+\ 
+
+If the process runs smoothly, at the end of the process we will have a single executable called \texttt{cesm.exe}.
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% CASE RUN
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Running the case}
+
+Once the model has been compiled, we can run it by submitting the request to the scheduler:
+
+\begin{verbatim}
+$ ./case.submit
+\end{verbatim}
+
+\ 
+
+This process runs the coupled model and the following task called \texttt{archive}. We can check the status of the processes through \texttt{bjobs}.
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% OPTIONAL STEPS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Optional steps}
+
+\begin{itemize}
+    \item<1-> Modifying variables:
+    \begin{verbatim}
+$ ./xmlchange VARIABLE VALUE
+    \end{verbatim}
+    
+    \item<2-> Modifying the namelists: we edit the namelists called \texttt{user\_nl\_\textit{xx}} where \texttt{\textit{xx}} is the model
+    
+    \item<3-> Previewing the namelists: 
+    \begin{verbatim}
+$ ./preview_namelists
+    \end{verbatim}
+    
+    \item<4-> Previewing the run:
+    \begin{verbatim}
+$ ./preview_run
+    \end{verbatim}
+
+    \item<5-> Getting the list of components:
+    \begin{verbatim}
+$ ./query_config --components 
+    \end{verbatim}
+
+\end{itemize}
+\end{frame}
+

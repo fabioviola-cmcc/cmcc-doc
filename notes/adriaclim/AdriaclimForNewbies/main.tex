@@ -1,0 +1,45 @@
+\documentclass[9pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usetheme{Montpellier}
+\usecolortheme{dolphin}
+\usepackage{listings}
+\usepackage{fontawesome}
+\usepackage{hyperref}
+
+\title{Adriaclim and CIME}
+\subtitle{Overview and first steps}
+\date{2021/05/05}
+
+
+\AtBeginSection[]
+{
+ \begin{frame}<beamer>
+ \frametitle{Table of contents}
+ \tableofcontents[currentsection]
+ \end{frame}
+}
+
+
+\begin{document}
+
+\author[Viola] % (optional, for multiple authors)
+{F.~Viola\inst{1}}
+
+\institute[CMCC] % (optional)
+{
+  \inst{1}%
+  CMCC -- Centro EuroMediterraneo sui Cambiamenti Climatici\\
+  OPA Division -- Ocean Predictions and Applications
+}
+
+\logo{\includegraphics[height=1.5cm]{logo.png}}
+
+\maketitle
+
+\input{introduction}
+\input{setup}
+\input{workflow}
+\input{resources}
+
+
+\end{document}

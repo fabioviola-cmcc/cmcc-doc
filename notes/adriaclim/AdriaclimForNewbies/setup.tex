@@ -1,0 +1,35 @@
+\section{Setting up the environment}
+
+\begin{frame}[fragile]{Overview}
+
+Let's suppose we want to run CIME on Zeus. We need:
+
+\begin{itemize}
+    \item<2-> CESM
+    \begin{verbatim}
+$ git clone -b cesm2.1-nemobranch https://github.com/ESCOMP/\
+  cesm.git my_cesm2
+    \end{verbatim}
+
+    \item<3-> CIME and the other models
+    \begin{itemize}
+        \item Edit Externals.cfg
+\begin{verbatim}
+[cime]
+hash = 5dcb592
+protocol = git
+repo_url = https://github.com/ESMCI/cime
+local_path = cime
+required = True
+\end{verbatim}        
+        
+        \item Run:
+        \begin{verbatim}
+$ ./manage_externals/checkout_externals
+        \end{verbatim}
+    \end{itemize}
+\end{itemize}
+
+\textbf{NOTE:} we are skipping CIME dependencies, since they are already satisfied on Zeus. Just remember to enable conda for python 2.7.
+    
+\end{frame}
