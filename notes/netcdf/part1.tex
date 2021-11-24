@@ -1,0 +1,261 @@
+\documentclass[9pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usetheme{Montpellier}
+\usecolortheme{dolphin}
+\usepackage{listings}
+\usepackage{fontawesome}
+\usepackage{hyperref}
+\usepackage[ampersand]{easylist}
+
+\title{Dealing with NetCDF files}
+\subtitle{Training module 0\dots}
+\date{2021/05/03}
+
+
+\AtBeginSection[]
+{
+ \begin{frame}<beamer>
+ \frametitle{Table of contents}
+ \tableofcontents[currentsection]
+ \end{frame}
+}
+
+
+\begin{document}
+
+\author[Viola] % (optional, for multiple authors)
+{F.~Viola\inst{1}}
+
+\institute[CMCC] % (optional)
+{
+  \inst{1}%
+  CMCC -- Centro EuroMediterraneo sui Cambiamenti Climatici\\
+  OPA Division -- Ocean Predictions and Applications
+}
+
+\logo{\includegraphics[height=1.5cm]{logo.png}}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Where to find data}
+
+\textbf{NetCDF} (Network Common Data Form) is a self-describing, machine-independent data format that support the creation, access, and sharing of array-oriented scientific data. It is commonly used in climatology, meteorology and oceanography applications.
+
+\
+
+\textbf{Self-describing} means that there is a header which describes the layout of the rest of the file. 
+
+\ 
+
+\pause Example of NetCDF files are those used as input for Medslik and containing all the data about winds, currents and sea temperature for a given region.
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Where to find data}
+
+First of all, we need to retrieve at least one NetCDF file in order to try the commands presented in the following frames.
+
+\ 
+
+\pause We can find this kind of files on Zeus (our models run on it and produce NetCDF files, e.g. currents for the Mediterranean sea) or download them from CMEMS portal:
+
+\begin{center}
+\textbf{    \href{https://resources.marine.copernicus.eu/?option=com_csw&task=results}{Copernicus Marine Service -- Ocean Products\, \faExternalLink}}
+\end{center}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Inspecting data}
+
+Our best friend will be from now on \textbf{ncdump}. It allows us to see the structure of a NetCDF file by reading its headers with: 
+
+\begin{verbatim}
+$ ncdump -h file.nc
+\end{verbatim}
+
+\pause We can check the version of a NetCDF file with:
+
+\begin{verbatim}
+$ ncdump -k file.nc
+\end{verbatim}
+
+\pause \dots View the content of a variable with:
+
+\begin{verbatim}
+$ ncdump -v varName file.nc | less
+\end{verbatim}
+
+\pause \dots Or reading the whole content of the file with:
+
+\begin{verbatim}
+$ ncdump file.nc | less
+\end{verbatim}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Visualising data}
+
+Reading an endless matrix of data is not as easy and helpful as a graphical visualisation. Here, another tool comes in help: \textbf{ncview}
+
+\begin{verbatim}
+$ ncview file.nc
+\end{verbatim}
+    
+\vfill    
+    
+\textbf{Note:} please beware that ncview is extremely fragile! 
+    
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Another CLI tool\dots}
+    
+Sometimes, \textbf{cdo} is more useful than ncdump to check the content of a NetCDF file. For example, if a NetCDF file contains timestamps expressed in number of milliseconds since midnight, January 1, 1970 UTC, cdo automatically performs a conversion to show the dates in human readable format\dots 
+
+\begin{verbatim}
+$ cdo sinfo file.nc    
+\end{verbatim}
+
+\pause Another example is to have info about the underlying grid:
+
+\begin{verbatim}
+$ cdo -griddes file.nc
+\end{verbatim}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Manipulating NetCDF files}
+
+Now it's time to perform a bit of surgery on our files\dots\ What tools should we use?
+
+\ 
+
+    \begin{itemize}
+        \item<2-> those in nco suite
+        \item<3-> cdo
+        \item<4-> self-made tools
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Some example}
+    \begin{itemize}
+    
+        \item Convert from NetCDF4 to NetCDF3
+\begin{verbatim}
+$ ncks -3 file4.nc file3.nc
+\end{verbatim}
+
+        \item Convert from NetCDF3 to NetCDF4
+\begin{verbatim}
+$ ncks -4 file3.nc file4.nc
+\end{verbatim}
+    
+        \item Merge files
+\begin{verbatim}
+$ cdo merge input1.nc ... inputN.nc output.nc
+\end{verbatim}
+        
+        \item Rename dimensions/variables
+\begin{verbatim}
+ncrename -O -d longitude,lon -d  -v time,time_counter file.nc
+\end{verbatim}
+
+\item Remove variables
+\begin{verbatim}
+$ ncks -x -v uselessVar input.nc output.nc
+\end{verbatim}
+
+\item Select depth levels
+\begin{verbatim}
+$ ncks -d depth,1.50 -d depth,5.20 input.nc -o output.nc
+\end{verbatim}
+        
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Some examples}
+    \begin{itemize}
+        \item Extract data
+        \begin{verbatim}
+$ ncks -v varOfInterest -d lon,0,5 -d lat,0,5 input.nc
+\end{verbatim}
+        
+        \item Convert to grib
+\begin{verbatim}
+$ cdo -f grb -copy input.nc output.grb
+\end{verbatim}
+
+\item Rearrange data from lon $[0, 360]$  to $[-180, 180]$ degrees:
+
+\begin{verbatim}
+$ cdo -sellonlatbox,-180,180,-90,90 input.nc output.nc    
+\end{verbatim}
+
+\item Add attribute to variable:
+\begin{verbatim}
+$ cdo -setattribute,pressure@units=pascal input.nc output.nc
+\end{verbatim}
+
+\item Interpolate 6-hourly data to 1-hourly data:
+\begin{verbatim}
+$ cdo -inttime,6 input.nc output.nc
+\end{verbatim}
+
+\item Interpolate time by number of timesteps from one timestep to the next:
+
+\begin{verbatim}
+$ cdo -intntime,12 input.nc output.nc
+\end{verbatim}
+
+
+
+    \end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Exercise 0 - Inspection}
+
+Try to perform the following steps:
+
+\ 
+
+    \begin{enumerate}
+        \item Download \textbf{\href{https://www.dropbox.com/s/hvc5oftq3wbgo2k/20210501.nc?dl=0}{this\ \faExternalLink}} file containing ECMWF 0125 wind data for 2021/05/01
+        \item Try to understand which variables it contains
+        \item Which is the bounding box (lat,lon)?
+        \item Print the values of the wind variables for the first timestep at a lat 43.2 and lon 35.7
+        \item Plot data
+    \end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Exercise 1 - Manipulation}
+
+Try to perform the following steps:
+
+\ 
+
+    \begin{enumerate}
+        \item Download a file for the Black Sea containing hourly data about waves forecast for the time interval 2021/05/01 -- 2021/05/03. Just select VHM0 and VMDR variables (should be approx. 30 MB)
+        \item Preserve only variable VHM0
+        \item Rename variable to WaveHeight
+        \item Split the file in n files, one per day
+        \item Plot the resulting data
+    \end{enumerate}
+\end{frame}
+
+
+
+
+
+\end{document}

@@ -1,0 +1,136 @@
+\documentclass[9pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usetheme{Montpellier}
+\usecolortheme{dolphin}
+\usepackage{listings}
+\usepackage{fontawesome}
+\usepackage{hyperref}
+\usepackage[ampersand]{easylist}
+
+\title{Dealing with NetCDF files}
+\subtitle{Training module 1\dots}
+\date{2021/05/04}
+
+
+\AtBeginSection[]
+{
+ \begin{frame}<beamer>
+ \frametitle{Table of contents}
+ \tableofcontents[currentsection]
+ \end{frame}
+}
+
+
+\begin{document}
+
+\author[Viola] % (optional, for multiple authors)
+{F.~Viola\inst{1}}
+
+\institute[CMCC] % (optional)
+{
+  \inst{1}%
+  CMCC -- Centro EuroMediterraneo sui Cambiamenti Climatici\\
+  OPA Division -- Ocean Predictions and Applications
+}
+
+\logo{\includegraphics[height=1.5cm]{logo.png}}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Supported languages}
+
+The NetCDF file format is highly supported. Among the many languages implementing NetCDF, we mention:
+
+\begin{itemize}
+    \item \textbf{Fortran}
+    \item \textbf{Python}
+    \item C/C++
+    \item Java
+    \item Ruby
+    \item R
+    \item Matlab
+    \item IDL
+    \item Perl
+    \item Tcl/Tk
+    \item Ada
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Python}
+
+In Python it is first advisable to create an environment with conda:
+
+\begin{verbatim}
+$ conda create -n envName
+$ conda activate envName
+\end{verbatim}
+
+\pause
+
+\ 
+
+The netcdf library that we will use in Python is called \texttt{netCDF4}
+
+\begin{verbatim}
+$ conda install netcdf4
+\end{verbatim}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Python (1)}
+
+First of all import the library:
+
+\begin{verbatim}
+from netCDF4 import Dataset
+\end{verbatim}
+
+\pause
+
+\ 
+
+Then, we can open NetCDF files with:
+
+\begin{verbatim}
+ds = Dataset(filename, "r", "NETCDF4")
+\end{verbatim}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Python (2)}
+
+\begin{itemize}
+    \item \texttt{ds} -- shows several information
+    \item \texttt{ds.dimensions} -- returns a dictionary of all the dimensions
+    \item \texttt{ds.variables} -- shows a dictionary of all the variables
+    \item \texttt{ds["varname"]} -- shows info about the variable \textit{varname}
+    \item \texttt{ds["varname"][:]} -- access data according to numpy rules (see \textit{slicing})
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Python (3)}
+
+\begin{itemize}
+    \item \texttt{dim1 = Dataset.createDimension(...)} -- to create a dimension
+    \item \texttt{var1 = Dataset.createVariable(...)} -- to create a variable
+    \item \texttt{var1[:] = data} -- to assign data to the variable
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Python (4)}
+
+The library NetCDF4 is quite useful in many cases, but you will soon feel limited using it\dots\ Then, the natural evolution will be to use \texttt{xarray}.
+
+\end{frame}
+
+
+\end{document}
